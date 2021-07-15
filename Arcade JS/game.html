@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Arcade With JavaScript</title>
+  </head>
+  <body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+      var canvas;
+      var canvasCxt;
+      var ballX = 50;
+      var ballY = 50;
+      var ballSpeedX = 5;
+      var ballSpeedY = 2;
+      var paddle1Y = 250;
+      var paddle2Y = 250;
+      const PADDLE_HEIGHT = 100;
+
+      // knowing and setting the mouse position
+      function calculateMousePos(evt) {
+        var rect = canvas.getBoundingClientRect();
+        var root = document.documentElement;
+        var mouseX = evt.clientX - rect.left - root.scrollLeft;
+        var mouseY = evt.clientY - rect.top - root.scrollTop;
+        return {
+          x: mouseX,
+          y: mouseY,
+        };
+      }
+
+      // on loading the page
+      window.onload = function () {
+        console.log("hello world");
+        canvas = document.getElementById("gameCanvas");
+        canvasCtx = canvas.getContext("2d");
+
+        var fps = 60;
+        setInterval(function () {
+          move();
+          draw();
+        }, 1000 / fps);
+
+        canvas.addEventListener("mousemove", function (evt) {
+          var mousePos = calculateMousePos(evt);
+          paddle1Y = mousePos.y - PADDLE_HEIGHT / 2;
+        });
+      };
+
+      function ballReset() {
+        ballSpeedX = -ballSpeedX;
+        ballX = canvas.width / 2;
+        ballY = canvas.width / 2;
+      }
+
+      // ball animation function
+      function move() {
+        ballX = ballX + ballSpeedX;
+        ballY = ballY + ballSpeedY;
+
+        if (ballX > canvas.width) {
+          ballSpeedX = -ballSpeedX;
+        }
+        if (ballX < 0) {
+          if (ballY > paddle1Y && ballY < paddle1Y + PADDLE_HEIGHT) {
+            ballSpeedX = -ballSpeedX;
+          } else {
+            ballReset();
+          }
+        }
+        if (ballY > canvas.height) {
+          ballSpeedY = -ballSpeedY;
+        }
+        if (ballY < 0) {
+          ballSpeedY = -ballSpeedY;
+        }
+      }
+
+      // function to draw everything in the page
+      function draw() {
+        console.log(ballX);
+        // blanks out the screen with black
+        colorRect(0, 0, canvas.width, canvas.height, "black");
+
+        // left player paddle
+        colorRect(0, paddle1Y, 15, PADDLE_HEIGHT, "cyan");
+
+        // draws the ball
+        // colorRect(ballX, 200, 10, 10, "red");
+        colorCircle(ballX, ballY, 10, "red");
+      }
+
+      // features of the ball
+      function colorCircle(centerX, centerY, radius, drawColor) {
+        canvasCtx.fillStyle = drawColor;
+        canvasCtx.beginPath();
+        canvasCtx.arc(centerX, centerY, radius, 0, Math.PI * 2, true);
+        canvasCtx.fill();
+      }
+
+      // features of the paddle
+      function colorRect(leftX, topY, width, height, drawColor) {
+        canvasCtx.fillStyle = drawColor;
+        canvasCtx.fillRect(leftX, topY, width, height);
+      }
+    </script>
+  </body>
+</html>
